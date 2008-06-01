@@ -10,7 +10,6 @@ queries as possible.
 TODO
 ----
 
-  * Make this work for Rails 2.0.
   * Make baconhanding disableable for some controllers and actions.
 
 Copyright (c) 2008 Coda Hale <coda.hale@gmail.com>, released under the MIT
