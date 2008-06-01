@@ -1,3 +1,4 @@
+RAILS_DEFAULT_LOGGER.debug "Loading baconhand!"
 if RAILS_ENV == "development" || RAILS_ENV == "test"
   require "baconhand"
   require "baconhand/active_record_integration"
