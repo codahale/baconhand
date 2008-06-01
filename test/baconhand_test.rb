@@ -18,6 +18,10 @@ class BaconhandTest < Test::Unit::TestCase
 end
 
 class ActiveRecordIntegrationTest < Test::Unit::TestCase
+  def setup
+    Baconhand.reminder = :exception
+  end
+  
   def test_should_have_a_baconhand_flag
     Baconhand.enable
     assert_equal(true, Baconhand.enabled?)
@@ -31,6 +35,17 @@ class ActiveRecordIntegrationTest < Test::Unit::TestCase
       ActiveRecord::Base.find_by_sql("SELECT 1 FROM dingo")
     rescue Baconhand::GentleReminder => error
       assert_match(/SELECT 1 FROM dingo/, error.message)
+    end
+  end
+  
+  def test_should_be_able_to_only_warn
+    Baconhand.reminder = :warning
+    begin
+      ActiveRecord::Base.find_by_sql("SELECT 1 FROM dingo")
+    rescue Baconhand::GentleReminder => error
+      fail("Should not have been baconhanded")
+    rescue
+      # okay fine, there's no db so this is expected
     end
   end
   

@@ -1,26 +1,36 @@
 module Baconhand
-  def self.wrap(klass, method)
-    return unless klass.instance_methods.include?(method.to_s)
+  class <<self
+    def reminder
+      @reminder ||= :exception
+    end
     
-    klass.class_eval <<-end_eval
-      def #{method}_with_baconhand(*args, &block)
-        Baconhand { self.#{method}_without_baconhand(*args, &block) }
-      end
+    def reminder=(reminder)
+      @reminder = reminder
+    end
+    
+    def wrap(klass, method)
+      return unless klass.instance_methods.include?(method.to_s)
       
-      alias_method_chain :#{method}, :baconhand
-    end_eval
-  end
-  
-  def self.enable
-    @enabled = true
-  end
-  
-  def self.enabled?
-    @enabled
-  end
-  
-  def self.disable
-    @enabled = false
+      klass.class_eval <<-end_eval
+        def #{method}_with_baconhand(*args, &block)
+          Baconhand { self.#{method}_without_baconhand(*args, &block) }
+        end
+        
+        alias_method_chain :#{method}, :baconhand
+      end_eval
+    end
+    
+    def enable
+      @enabled = true
+    end
+    
+    def enabled?
+      @enabled
+    end
+    
+    def disable
+      @enabled = false
+    end
   end
   
   class GentleReminder < StandardError

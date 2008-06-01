@@ -13,7 +13,16 @@ module ActiveRecord
             raise Baconhand::GentleReminder, sql
           rescue Baconhand::GentleReminder => error
             error.send(:backtrace).reject! { |line| File.expand_path(line).starts_with?(__FILE__) }
-            raise
+            
+            case Baconhand.reminder
+            when :exception
+              raise
+            when :warning
+              logger.warn error.message
+              error.backtrace.first(10).each do |frame|
+                logger.warn frame
+              end
+            end
           end
           
         end
