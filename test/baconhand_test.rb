@@ -19,22 +19,22 @@ end
 
 class ActiveRecordIntegrationTest < Test::Unit::TestCase
   def test_should_have_a_baconhand_flag
-    ActiveRecord::Base.disable_database_access = true
-    assert_equal(true, ActiveRecord::Base.disable_database_access)
-    ActiveRecord::Base.disable_database_access = false
-    assert_equal(false, ActiveRecord::Base.disable_database_access)
-  ensure
-    ActiveRecord::Base.disable_database_access = false
+    Baconhand.enable
+    assert_equal(true, Baconhand.enabled?)
+    Baconhand.disable
+    assert_equal(false, Baconhand.enabled?)
   end
   
   def test_should_raise_gentle_reminder_when_baconhand_is_on
-    ActiveRecord::Base.disable_database_access = true
+    Baconhand.enable
     begin
       ActiveRecord::Base.find_by_sql("SELECT 1 FROM dingo")
     rescue Baconhand::GentleReminder => error
       assert_match(/SELECT 1 FROM dingo/, error.message)
     end
-  ensure
-    ActiveRecord::Base.disable_database_access = false
+  end
+  
+  def teardown
+    Baconhand.disable
   end
 end

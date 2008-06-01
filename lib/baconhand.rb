@@ -2,19 +2,25 @@ module Baconhand
   def self.wrap(klass, method)
     return unless klass.instance_methods.include?(method.to_s)
     
-    RAILS_DEFAULT_LOGGER.debug "baconhanding #{klass}##{method}"
-    
     klass.class_eval <<-end_eval
       def #{method}_with_baconhand(*args, &block)
-        already_disabling = ActiveRecord::Base.disable_database_access
-        ActiveRecord::Base.disable_database_access = true unless already_disabling
-        self.#{method}_without_baconhand(*args, &block)
-      ensure
-        ActiveRecord::Base.disable_database_access = false unless already_disabling
+        Baconhand { self.#{method}_without_baconhand(*args, &block) }
       end
       
       alias_method_chain :#{method}, :baconhand
     end_eval
+  end
+  
+  def self.enable
+    @enabled = true
+  end
+  
+  def self.enabled?
+    @enabled
+  end
+  
+  def self.disable
+    @enabled = false
   end
   
   class GentleReminder < StandardError
@@ -33,5 +39,15 @@ module Baconhand
       ].join("\n")
     end
     
+  end
+end
+
+def Baconhand
+  already_enabled = Baconhand.enabled?
+  begin
+    Baconhand.enable
+    yield
+  ensure
+    Baconhand.disable unless already_enabled
   end
 end

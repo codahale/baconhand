@@ -3,18 +3,9 @@ require "baconhand"
 # TODO: make thread-safe when AR doesn't explode on its own when threaded
 module ActiveRecord
   class Base
-    @@disable_database_access = false
-    def self.disable_database_access
-      return @@disable_database_access
-    end
-    
-    def self.disable_database_access=(new_value)
-      @@disable_database_access = new_value
-    end
-    
     class << self
       def find_by_sql_with_baconhand(sql)
-        if disable_database_access
+        if Baconhand.enabled?
           
           # Jump through these hoops because I hate it when my stacktraces are
           # unfocused.
@@ -30,6 +21,5 @@ module ActiveRecord
       end
       alias_method_chain :find_by_sql, :baconhand
     end
-    self.disable_database_access = false
   end
 end
